@@ -1,0 +1,30 @@
+import pandas as pd
+import numpy as np
+from google.colab import drive
+from google.colab import files
+import matplotlib.pyplot as plt
+
+
+files.upload()
+
+nbastat = pd.read_csv('nbastat2022.csv')
+
+X=nbastat[['FGA']]
+Y=nbastat[['FGM']]
+
+X=X.fillna(0)     # 결측치를 0으로 채운다.
+Y=Y.fillna(0)
+
+m = len(nbastat)
+
+X=(np.array(X)).reshape(m,1)      # m행 1열로 행렬 변환
+Y=(np.array(Y)).reshape(m,1)
+
+from sklearn.linear_model import SGDRegressor
+sgd_reg = SGDRegressor(max_iter=100, penalty=None, alpha=0.0001)
+sgd_reg.fit(X,Y.ravel())
+
+Y_pred = sgd_reg.predict(X)
+plt.plot(X,Y,'b.')
+plt.plot(X,Y_pred,'r')
+plt.show()
