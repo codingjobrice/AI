@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+from google.colab import drive
+
+drive.mount('/smui')
+
+from google.colab import files
+files.upload()
+
+nbastat = pd.read_csv('nbastat2022.csv')
+nbastat
+
+m = len(nbastat)
+X=nbastat[['FGA']]
+Y=nbastat[['FGM']]
+
+X=X.fillna(0)     # 결측치를 0으로 채운다.
+Y=Y.fillna(0)
+
+X=(np.array(X)).reshape(m,1)      # m행 1열로 행렬 변환
+Y=(np.array(Y)).reshape(m,1)
+
+learning_rate = 0.0001
+n_iter = 200
+theta=np.zeros((2,1))     #초기화
+gradients = np.zeros((2,1))     #초기화
+x0 = np.ones((m,1))
+Xb = np.c_[x0,X]      #열 방향으로 행렬을 합친다
+
+for i in range(n_iter):     #경사 하강법 수행
+  gradients = (1.0/m)*Xb.T.dot(Xb.dot(theta)-Y)     # == 1/m * (Xb*theta - Y)*Xb  
+  theta = theta - learning_rate*gradients 
+  
+Y_pred = Xb.dot(theta)
+plt.plot(X,Y_pred, color = 'red')
+plt.plot(X,Y,'.b')
+
+Xtest = np.array([1,20])      # 테스트 결과
+np.dot(Xtest, theta)
