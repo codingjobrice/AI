@@ -76,3 +76,5 @@ Xtest = np.array([1,20])
 np.dot(Xtest,theta)
 
 # 그래프를 보면 선형 회귀 모델임을 알 수 있다. 선형식을 알 수 있으니 theta0, theta1 을 구할 수 있다.
+
+
