@@ -1,39 +1,78 @@
-import pandas as pd
+# 문제
+# nbastat2022.csv에서 읽어온 249명(m)의 데이터에서 추출한 슛 시도 횟수(FGA,x) 와
+# 슛 성공 횟수 (FGM,y)의 쌍으로부터 FGA와 FGM의 관계를 설명하는
+# 모델 (y= theta0 + theta1x)의 파라미터 (theta0,theta1)를 결정하시오.
+
+
+# ML model 준비
+
+# 자 문제에서 우리는 선형 회귀 모델임을 알 수 있고
+# y = theta0 + theta1x 임을 알 수 있고 theta0 와 theta1을 구하자
+
+
+
+# data 로딩
+
+# library import
 import numpy as np
+import pandas as pd
 from google.colab import drive
 
+# mount drive
 drive.mount('/smui')
 
+# upload file
 from google.colab import files
 files.upload()
 
+# read csv file
 nbastat = pd.read_csv('nbastat2022.csv')
-nbastat
 
+# 행 수 
 m = len(nbastat)
+
+# nbastat 에서 coloumn 선택
 X=nbastat[['FGA']]
+
+
 Y=nbastat[['FGM']]
 
-X=X.fillna(0)     # 결측치를 0으로 채운다.
+# 결측값 처리
+X=X.fillna(0)
 Y=Y.fillna(0)
 
-X=(np.array(X)).reshape(m,1)      # m행 1열로 행렬 변환
+#ndarray로 변환
+X=(np.array(X)).reshape(m,1)
 Y=(np.array(Y)).reshape(m,1)
 
+# ML 모델 훈련
+
+# 준비
 learning_rate = 0.0001
 n_iter = 200
-theta=np.zeros((2,1))     #초기화
-gradients = np.zeros((2,1))     #초기화
-x0 = np.ones((m,1))
-Xb = np.c_[x0,X]      #열 방향으로 행렬을 합친다
 
-for i in range(n_iter):     #경사 하강법 수행
-  gradients = (1.0/m)*Xb.T.dot(Xb.dot(theta)-Y)     # == 1/m * (Xb*theta - Y)*Xb  
-  theta = theta - learning_rate*gradients 
-  
+# 초기화
+theta = np.zeros((2,1))
+gradients = np.zeros((2,1))
+x0=np.ones((m,1))
+Xb=np.c_[x0,X]
+
+# 경사 하강법 수행
+for i in range(n_iter):
+  gradients = (1.0/m)* Xb.T.dot(Xb.dot(theta)-Y)  # loss 함수의 편미분
+  theta = theta - learning_rate*gradients
+
 Y_pred = Xb.dot(theta)
-plt.plot(X,Y_pred, color = 'red')
+
+# 결과
+
+# 결과 그리기
+import matplotlib.pyplot as plt
+plt.plot(X,Y_pred,color = 'Red')
 plt.plot(X,Y,'.b')
 
-Xtest = np.array([1,20])      # 테스트 결과
-np.dot(Xtest, theta)
+# 슛을 20개 시도하는 (FGA = 20) 인 선수가 슛을 성공하는 개수 (FGM)를 예측하시오.
+Xtest = np.array([1,20])
+np.dot(Xtest,theta)
+
+# 그래프를 보면 선형 회귀 모델임을 알 수 있다. 선형식을 알 수 있으니 theta0, theta1 을 구할 수 있다.
