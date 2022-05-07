@@ -1,0 +1,94 @@
+# 다항 회귀 모델
+
+# 1) 문제 설정
+# 문제
+# nbastat.csv 에서 야투 시도 횟수(FGA), 3점슛 시도 횟수 (3PA), 자유투 시도 횟수(FTA)
+# 로부터 득점수 (PTS)를 예측하는 모델을 만들고 이를 훈련시키시오.
+
+# 변수
+# y:PTS
+# x1:FGA
+# x2:3PA
+# x3:FTA
+# 가설: h(x): y =theta0 +theta1x1 + theta2x2 + theat3x3
+
+
+# 2) data 준비
+
+# data 로딩
+
+import numpy as np
+import pandas as pd
+from google.colab import drive
+
+drive.mount('/smui')
+
+from google.colab import files
+files.upload()
+
+nbastat = pd.read_csv('nbastat2022.csv')
+
+m = len(nbastat)
+
+# column 선택
+X1=nbastat[['FGA']]
+X2=nbastat[['3PA']]
+X3=nbastat[['FTA']]
+Y=nbastat[['PTS']]
+
+# 결측값 처리
+X1=X1.fillna(0)
+X2=X2.fillna(0)
+X3=X3.fillna(0)
+Y=Y.fillna(0)
+
+X1=(np.array(X1)).reshape(m,1)
+X2=(np.array(X2)).reshape(m,1)
+X3=(np.array(X3)).reshape(m,1)
+Y=(np.array(Y)).reshape(m,1)
+
+x0=np.ones((m,1))
+Xb=np.c_[x0,X1,X2,X3]
+
+# 3) ML model 준비
+
+# 준비
+# 검증 시 learning_rate 와 n_iter 을 건들여 준다.
+learning_rate = 0.0001
+n_iter=200
+
+# 초기화
+theta = np.zeros((4,1)) # 4는 변수 개수
+gradients = np.zeros((4,1))
+
+# 4) ML model 훈련
+
+# 다항 회귀 모델
+def Compute_J(theta,Xb,Y):
+  loss_vector = Xb.dot(theta)-Y
+  loss_vector = loss_vector.reshape(-1)
+  loss2 = np.square(loss_vector)
+  loss_sum=np.sum(loss2)/(2*m)
+  return loss_sum
+
+# gradient descent
+loss_arr = []
+itr_arr = []
+for i in range(n_iter):
+  gradients = (1.0/m)*Xb.T.dot(Xb.dot(theta)-Y)
+  theta = theta - learning_rate*gradients
+  loss = Compute_J(theta,Xb,Y)
+  itr_arr.append(i)
+  loss_arr.append(loss)
+  
+  # 5) 결과 분석
+# 결과 검증
+
+import matplotlib.pyplot as plt
+plt.plot(itr_arr,loss_arr,'.b')
+plt.xlabel("itr")
+plt.ylabel("loss")
+
+Y_pred=Xb.dot(theta)
+error = (1/len(Y_pred))*(Y_pred-Y).T.dot(Y_pred-Y)
+print(error)
